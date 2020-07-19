@@ -28,8 +28,8 @@ class Brick {
 
 	collide(x, y) {
 		return (
-			x > this.x && x < this.x + this.w &&
-			y > this.y && y < this.y + this.h
+			x+ballRadius >= this.x && x-ballRadius <= this.x + this.w &&
+			y+ballRadius >= this.y && y-ballRadius <= this.y + this.h
 		);
 	}
 }
