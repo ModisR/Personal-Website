@@ -7,6 +7,7 @@ main("Breakout", function()
 
     <script src="../Vector.js"></script>
     <script src="Brick.js"></script>
+    <script src="Level.js"></script>
     <script src="main.js"></script>
 <?php
 });?>

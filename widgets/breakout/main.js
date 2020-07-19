@@ -14,25 +14,13 @@ const paddleW = 75;
 var paddleX = (W - paddleW) / 2;
 const paddleSpd = 200;
 
-const brickRows = 3;
-const brickCols = 5;
-const brickW = 75;
-const brickH = 20;
-const brickGap = 10;
-const brickOffsetTop = 30;
-const brickOffsetLeft = 30;
-
-const bricks = [];
-for (var c = 0; c < brickCols; c++)
-	for (var r = 0; r < brickRows; r++)
-		bricks.push(new Brick(
-			brickOffsetLeft + c * (brickW + brickGap),
-			brickOffsetTop + r * (brickH + brickGap),
-			brickW, brickH
-		));
-
-document.addEventListener("keydown", keyDownHandler, false);
-document.addEventListener("keyup", keyUpHandler, false);
+const levels = [
+	[
+		[true, true, true, true, true],
+		[true, true, false, true, true],
+		[true, false, false, false, true]
+	]
+].map(level => new Level(level));
 
 function keyDownHandler(e) {
 	switch (e.code) {
@@ -48,6 +36,9 @@ function keyUpHandler(e) {
 	}
 }
 
+document.addEventListener("keydown", keyDownHandler, false);
+document.addEventListener("keyup", keyUpHandler, false);
+
 function drawBall() {
 	ctx.beginPath();
 	ctx.arc(...pos, ballRadius, 0, Math.PI * 2);
@@ -62,16 +53,12 @@ function drawPaddle() {
 	ctx.fill();
 }
 
-function drawBricks() {
-	bricks.forEach(brick => brick.draw());
-}
-
 var score = 0;
 
 function drawScore() {
-	if (score == bricks.length) {
+	if (score == levels[0].bricks.length) {
 		alert("YOU WIN, CONGRATULATIONS!");
-		document.location.reload();
+		location.reload();
 	} else {
 		ctx.font = "16px Arial";
 		ctx.fillStyle = "#0095DD";
@@ -93,24 +80,24 @@ function draw(t0) {
 			if (pos[0] > paddleX && pos[0] < paddleX + paddleW) {
 				vel[1] = -vel[1];
 			}
-			else if(pos[1] >= H - ballRadius){
+			else if (pos[1] >= H - ballRadius) {
 				alert("GAME OVER");
-				document.location.reload();
+				location.reload();
 			}
 
 		const dt = (t1 - t0) / 1000;
 		const dp = scale(dt, vel);
 
-		pos = add(pos, dp);
+		pos = plus(pos, dp);
 		drawBall();
 
-		if (lPress)
+		if (lPress && paddleX>=0)
 			paddleX -= dt * paddleSpd;
-		else if (rPress)
+		else if (rPress && paddleX<=W-paddleW)
 			paddleX += dt * paddleSpd;
 
 		drawPaddle();
-		drawBricks();
+		levels[0].draw();
 		drawScore();
 	}
 }
