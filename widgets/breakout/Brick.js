@@ -1,6 +1,6 @@
 export class Brick {
-	static W = 60;
-	static H = 15;
+	static W = 80;
+	static H = 20;
 
 	constructor(x, y) {
 		this.x0 = x;
@@ -19,13 +19,16 @@ export class Brick {
 		this.broken = false;
 
 		const hue = 360 * Math.random();
-		this.col = `hsl(${hue},100%,50%)`;
+		this.fill   = `hsl(${hue},100%,50%)`;
+		this.stroke = `hsl(${hue},100%,25%)`;
 	}
 
 	draw(ctx) {
 		ctx.beginPath();
 		ctx.rect(this.x0, this.y0, Brick.W, Brick.H);
-		ctx.fillStyle = this.col;
+		ctx.fillStyle = this.fill;
 		ctx.fill();
+		ctx.strokeStyle = this.stroke;
+		ctx.stroke();
 	}
 }

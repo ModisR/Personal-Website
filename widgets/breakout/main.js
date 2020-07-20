@@ -15,14 +15,18 @@ var [lPress, rPress] = [false, false];
 const paddleH = 10;
 const paddleW = 75;
 var paddleX = (W - paddleW) / 2;
-const paddleSpd = 300;
+var paddleSpd = 300;
 
 const levels = [
 	[
-		[true, true, true, true, true, true, true, true],
-		[true, true, true, true, true, true, true, true],
-		[true, true, true, true, true, true, true, true],
-		[true, true, true, true, true, true, true, true]
+		[false, false, false,  true,  true, false, false, false],
+		[false, false, false,  true,  true, false, false, false],
+		[ true, false,  true,  true,  true,  true, false,  true],
+		[ true, false,  true,  true,  true,  true, false,  true],
+		[ true, false,  true,  true,  true,  true, false,  true],
+		[ true, false,  true,  true,  true,  true, false,  true],
+		[ true, false,  true,  true,  true,  true, false,  true],
+		[ true, false,  true,  true,  true,  true, false,  true]
 	]
 ].map(level => new Level(level, W, H));
 
@@ -110,7 +114,8 @@ function draw(t0) {
 		} else if (pos[1] >= H - ballRadius - paddleH)
 			if (pos[0] > paddleX && pos[0] < paddleX + paddleW) {
 				vel[1] = -vel[1];
-				vel = scale(1.02, vel);
+				vel = scale(1.01, vel);
+				paddleSpd *= 1.01;
 			}
 			else if (pos[1] >= H - ballRadius) {
 				alert("GAME OVER");
