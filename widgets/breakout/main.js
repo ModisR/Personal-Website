@@ -1,5 +1,6 @@
-import { Level } from "./Level.js";
 import { vec, scale, plus } from "../Vector.js";
+import { RectEntity } from "./RectEntity.js";
+import { Level } from "./Level.js";
 
 const can = document.getElementById("can");
 const ctx = can.getContext("2d");
@@ -20,10 +21,13 @@ const ball = {
 
 var [lPress, rPress] = [false, false];
 
-const paddleH = 10;
 const paddleW = 75;
-var paddleX = (W - paddleW) / 2;
-var paddleSpd = 300;
+const paddleH = 10;
+var paddleSpd = 280;
+function newPaddle(x){
+	return new RectEntity(x, H - paddleH, paddleW, paddleH )
+}
+var paddle = newPaddle((W - paddleW) / 2);
 
 const levels = [
 	[
@@ -55,13 +59,6 @@ function keyUpHandler(e) {
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
 
-function drawPaddle() {
-	ctx.beginPath();
-	ctx.rect(paddleX, H - paddleH, paddleW, paddleH);
-	ctx.fillStyle = "#09D";
-	ctx.fill();
-}
-
 var score = 0;
 
 function drawScore(dt) {
@@ -72,7 +69,7 @@ function drawScore(dt) {
 		ctx.font = "16px Arial";
 		ctx.fillStyle = "#0095DD";
 		ctx.fillText("Score: " + score, 8, 20);
-		ctx.fillText(`${1/dt | 0} FPS`, 560, 20);
+		ctx.fillText(`${1 / dt | 0} FPS`, 560, 20);
 	}
 }
 
@@ -87,8 +84,7 @@ function draw(t0) {
 		if (ball.pos[1] <= ball.rad) {
 			ball.vel[1] = -ball.vel[1];
 		} else if (ball.pos[1] >= H - ball.rad - paddleH)
-			if (ball.pos[0] > paddleX && ball.pos[0] < paddleX + paddleW) {
-				ball.vel[1] = -ball.vel[1];
+			if (paddle.collides(ball)) {
 				ball.vel = scale(1.01, ball.vel);
 				paddleSpd *= 1.01;
 			}
@@ -103,12 +99,12 @@ function draw(t0) {
 		ball.pos = plus(ball.pos, dp);
 		ball.draw();
 
-		if (lPress && paddleX > 0)
-			paddleX -= dt * paddleSpd;
-		else if (rPress && paddleX <= W - paddleW)
-			paddleX += dt * paddleSpd;
+		if (lPress && paddle.x0 > 0)
+			paddle = newPaddle(paddle.x0 - dt*paddleSpd);
+		else if (rPress && paddle.x0 <= W - paddleW)
+			paddle = newPaddle(paddle.x0 + dt*paddleSpd);
 
-		drawPaddle();
+		paddle.draw(ctx);
 		if (levels[0].collides(ball, ctx))
 			score++;
 		drawScore(dt);
