@@ -1,7 +1,7 @@
 import { scale, minus, len2, norm, inner } from "../Vector.js";
 
 export class RectEntity {
-	constructor(x, y, w, h) {
+	constructor(x, y, w, h, col) {
 		this.x0 = x;
 		this.y0 = y;
 
@@ -19,11 +19,7 @@ export class RectEntity {
 			)
 		);
 
-		this.broken = false;
-
-		const hue = 360 * Math.random();
-		this.fill   = `hsl(${hue},100%,50%)`;
-		this.stroke = `hsl(${hue},100%,25%)`;
+		this.fill = col;
 	}
 
 	draw(ctx) {
@@ -31,8 +27,6 @@ export class RectEntity {
 		ctx.rect(this.x0, this.y0, this.w, this.h);
 		ctx.fillStyle = this.fill;
 		ctx.fill();
-		ctx.strokeStyle = this.stroke;
-		ctx.stroke();
 	}
 
 	collides(ball){

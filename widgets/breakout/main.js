@@ -25,7 +25,7 @@ const paddleW = 75;
 const paddleH = 10;
 var paddleSpd = 280;
 function newPaddle(x){
-	return new RectEntity(x, H - paddleH, paddleW, paddleH )
+	return new RectEntity(x, H - paddleH, paddleW, paddleH, "#f70")
 }
 var paddle = newPaddle((W - paddleW) / 2);
 
