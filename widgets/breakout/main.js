@@ -1,9 +1,9 @@
 const can = document.getElementById("can");
 const ctx = can.getContext("2d");
-const [W, H] = [480, 320]
-ctx.scale(9 / 4, 9 / 4);
+const [W, H] = [640, 360]
+ctx.scale(2, 2);
 
-const ballRadius = 10;
+const ballRadius = 8;
 var pos = vec(W / 2, H - 30);
 var vel = vec(200, -200);
 
@@ -12,15 +12,16 @@ var [lPress, rPress] = [false, false];
 const paddleH = 10;
 const paddleW = 75;
 var paddleX = (W - paddleW) / 2;
-const paddleSpd = 200;
+const paddleSpd = 300;
 
 const levels = [
 	[
-		[true, true, true, true, true],
-		[true, true, false, true, true],
-		[true, false, false, false, true]
+		[true, true, true, true, true, true, true, true],
+		[true, true, true, true, true, true, true, true],
+		[true, true, true, true, true, true, true, true],
+		[true, true, true, true, true, true, true, true]
 	]
-].map(level => new Level(level));
+].map(level => new Level(level, W, H));
 
 function keyDownHandler(e) {
 	switch (e.code) {
@@ -79,6 +80,7 @@ function draw(t0) {
 		} else if (pos[1] >= H - ballRadius - paddleH)
 			if (pos[0] > paddleX && pos[0] < paddleX + paddleW) {
 				vel[1] = -vel[1];
+				vel = scale(1.02, vel);
 			}
 			else if (pos[1] >= H - ballRadius) {
 				alert("GAME OVER");

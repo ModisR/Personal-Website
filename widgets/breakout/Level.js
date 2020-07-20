@@ -1,9 +1,5 @@
 class Level {
-	static brickRows = 3;
-	static brickCols = 5;
 	static brickGap = 10;
-	static brickOffsetTop = 30;
-	static brickOffsetLeft = 30;
 
 	constructor(rows) {
 		this.bricks = [];
@@ -12,8 +8,8 @@ class Level {
 			row.forEach((cell, c) => {
 				if(cell)
 					this.bricks.push(new Brick(
-						Level.brickOffsetLeft + c * (Brick.W + Level.brickGap),
-						Level.brickOffsetTop + r * (Brick.H + Level.brickGap),
+						Level.brickGap + c * (Brick.W + 2*Level.brickGap),
+						Level.brickGap + r * (Brick.H + 2*Level.brickGap),
 						Brick.W, Brick.H
 					));
 				}

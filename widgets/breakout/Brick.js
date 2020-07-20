@@ -1,6 +1,6 @@
 class Brick {
-	static W = 75;
-	static H = 20;
+	static W = 60;
+	static H = 15;
 
 	constructor(x, y) {
 		this.x0 = x;
