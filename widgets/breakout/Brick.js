@@ -1,3 +1,5 @@
+import { scale, minus, len2, norm, inner } from "../Vector.js";
+
 export class Brick {
 	static W = 80;
 	static H = 20;
@@ -30,5 +32,32 @@ export class Brick {
 		ctx.fill();
 		ctx.strokeStyle = this.stroke;
 		ctx.stroke();
+	}
+
+	collides(ball){
+		switch (true) {
+			case ball.pos[0] < this.x0 - ball.rad || ball.pos[0] > this.x1 + ball.rad ||
+				ball.pos[1] < this.y0 - ball.rad || ball.pos[1] > this.y1 + ball.rad:
+				return false;
+			case ball.pos[0] >= this.x0 && ball.pos[0] <= this.x1:
+				ball.vel[1] = -ball.vel[1];
+				return true;
+			case ball.pos[1] >= this.y0 && ball.pos[1] <= this.y1:
+				ball.vel[0] = -ball.vel[0];
+				return true;
+			default:
+				return this.corners.some(cor => {
+					const disp = minus(ball.pos, cor);
+					const dis2 = len2(disp);
+
+					if (dis2 <= ball.rad * ball.rad) {
+						const normal = norm(disp);
+						const proj = inner(ball.vel, normal);
+						ball.vel = minus(ball.vel, scale(2 * proj, normal));
+						return true;
+					}
+					return false;
+				});
+			}
 	}
 }

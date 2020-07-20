@@ -1,14 +1,22 @@
 import { Level } from "./Level.js";
-import { vec, scale, plus, minus, len2, norm, inner } from "../Vector.js";
+import { vec, scale, plus } from "../Vector.js";
 
 const can = document.getElementById("can");
 const ctx = can.getContext("2d");
 const [W, H] = [640, 360]
 ctx.scale(2, 2);
 
-const ballRadius = 8;
-var pos = vec(W / 2, H - 30);
-var vel = vec(200, -200);
+const ball = {
+	rad: 8,
+	pos: vec(W / 2, H - 30),
+	vel: vec(200, -200),
+	draw: function () {
+		ctx.beginPath();
+		ctx.arc(...this.pos, this.rad, 0, Math.PI * 2);
+		ctx.fillStyle = "#09D";
+		ctx.fill();
+	}
+}
 
 var [lPress, rPress] = [false, false];
 
@@ -19,14 +27,14 @@ var paddleSpd = 300;
 
 const levels = [
 	[
-		[false, false, false,  true,  true, false, false, false],
-		[false, false, false,  true,  true, false, false, false],
-		[ true, false,  true,  true,  true,  true, false,  true],
-		[ true, false,  true,  true,  true,  true, false,  true],
-		[ true, false,  true,  true,  true,  true, false,  true],
-		[ true, false,  true,  true,  true,  true, false,  true],
-		[ true, false,  true,  true,  true,  true, false,  true],
-		[ true, false,  true,  true,  true,  true, false,  true]
+		[false, false, false, true, true, false, false, false],
+		[false, false, false, true, true, false, false, false],
+		[true, false, true, true, true, true, false, true],
+		[true, false, true, true, true, true, false, true],
+		[true, false, true, true, true, true, false, true],
+		[true, false, true, true, true, true, false, true],
+		[true, false, true, true, true, true, false, true],
+		[true, false, true, true, true, true, false, true]
 	]
 ].map(level => new Level(level, W, H));
 
@@ -47,13 +55,6 @@ function keyUpHandler(e) {
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
 
-function drawBall() {
-	ctx.beginPath();
-	ctx.arc(...pos, ballRadius, 0, Math.PI * 2);
-	ctx.fillStyle = "#09D";
-	ctx.fill();
-}
-
 function drawPaddle() {
 	ctx.beginPath();
 	ctx.rect(paddleX, H - paddleH, paddleW, paddleH);
@@ -63,7 +64,7 @@ function drawPaddle() {
 
 var score = 0;
 
-function drawScore() {
+function drawScore(dt) {
 	if (score == levels[0].bricks.length) {
 		alert("YOU WIN, CONGRATULATIONS!");
 		location.reload();
@@ -71,33 +72,7 @@ function drawScore() {
 		ctx.font = "16px Arial";
 		ctx.fillStyle = "#0095DD";
 		ctx.fillText("Score: " + score, 8, 20);
-	}
-}
-
-function checkCollision(brick) {
-	switch (true) {
-		case pos[0] < brick.x0 - ballRadius || pos[0] > brick.x1 + ballRadius ||
-			pos[1] < brick.y0 - ballRadius || pos[1] > brick.y1 + ballRadius:
-			return false;
-		case pos[0] >= brick.x0 && pos[0] <= brick.x1:
-			vel[1] = -vel[1];
-			return true;
-		case pos[1] >= brick.y0 && pos[1] <= brick.y1:
-			vel[0] = -vel[0];
-			return true;
-		default:
-			return brick.corners.some(cor => {
-				const disp = minus(pos, cor);
-				const dis2 = len2(disp);
-
-				if (dis2 <= ballRadius * ballRadius) {
-					const normal = norm(disp);
-					const proj = inner(vel, normal);
-					vel = minus(vel, scale(2 * proj, normal));
-					return true;
-				}
-				return false;
-			});
+		ctx.fillText(`${1/dt | 0} FPS`, 560, 20);
 	}
 }
 
@@ -106,27 +81,27 @@ function draw(t0) {
 		requestAnimationFrame(draw(t1));
 		ctx.clearRect(0, 0, W, H);
 
-		if (pos[0] >= W - ballRadius || pos[0] <= ballRadius)
-			vel[0] = -vel[0];
+		if (ball.pos[0] >= W - ball.rad || ball.pos[0] <= ball.rad)
+			ball.vel[0] = -ball.vel[0];
 
-		if (pos[1] <= ballRadius) {
-			vel[1] = -vel[1];
-		} else if (pos[1] >= H - ballRadius - paddleH)
-			if (pos[0] > paddleX && pos[0] < paddleX + paddleW) {
-				vel[1] = -vel[1];
-				vel = scale(1.01, vel);
+		if (ball.pos[1] <= ball.rad) {
+			ball.vel[1] = -ball.vel[1];
+		} else if (ball.pos[1] >= H - ball.rad - paddleH)
+			if (ball.pos[0] > paddleX && ball.pos[0] < paddleX + paddleW) {
+				ball.vel[1] = -ball.vel[1];
+				ball.vel = scale(1.01, ball.vel);
 				paddleSpd *= 1.01;
 			}
-			else if (pos[1] >= H - ballRadius) {
+			else if (ball.pos[1] >= H - ball.rad) {
 				alert("GAME OVER");
 				location.reload();
 			}
 
 		const dt = (t1 - t0) / 1000;
-		const dp = scale(dt, vel);
+		const dp = scale(dt, ball.vel);
 
-		pos = plus(pos, dp);
-		drawBall();
+		ball.pos = plus(ball.pos, dp);
+		ball.draw();
 
 		if (lPress && paddleX > 0)
 			paddleX -= dt * paddleSpd;
@@ -134,14 +109,9 @@ function draw(t0) {
 			paddleX += dt * paddleSpd;
 
 		drawPaddle();
-		levels[0].bricks.forEach(brick => {
-			if (!brick.broken){
-				brick.draw(ctx);
-				if(brick.broken = checkCollision(brick))
-					score++;
-			}
-		});
-		drawScore();
+		if (levels[0].collides(ball, ctx))
+			score++;
+		drawScore(dt);
 	}
 }
 
