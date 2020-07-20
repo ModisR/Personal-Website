@@ -91,9 +91,9 @@ function draw(t0) {
 		pos = plus(pos, dp);
 		drawBall();
 
-		if (lPress && paddleX>=0)
+		if (lPress && paddleX > 0)
 			paddleX -= dt * paddleSpd;
-		else if (rPress && paddleX<=W-paddleW)
+		else if (rPress && paddleX <= W-paddleW)
 			paddleX += dt * paddleSpd;
 
 		drawPaddle();
