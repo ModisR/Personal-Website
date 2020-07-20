@@ -1,4 +1,6 @@
-class Level {
+import {Brick} from "./Brick.js";
+
+export class Level {
 	static brickGap = 10;
 
 	constructor(rows) {
@@ -15,9 +17,5 @@ class Level {
 				}
 			);
 		});
-	}
-
-	draw() {
-		this.bricks.forEach(brick => brick.draw());
 	}
 }

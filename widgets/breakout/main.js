@@ -1,3 +1,6 @@
+import { Level } from "./Level.js";
+import { vec, scale, plus, minus, len2, norm, inner } from "../Vector.js";
+
 const can = document.getElementById("can");
 const ctx = can.getContext("2d");
 const [W, H] = [640, 360]
@@ -67,6 +70,33 @@ function drawScore() {
 	}
 }
 
+function checkCollision(brick) {
+	switch (true) {
+		case pos[0] < brick.x0 - ballRadius || pos[0] > brick.x1 + ballRadius ||
+			pos[1] < brick.y0 - ballRadius || pos[1] > brick.y1 + ballRadius:
+			return false;
+		case pos[0] >= brick.x0 && pos[0] <= brick.x1:
+			vel[1] = -vel[1];
+			return true;
+		case pos[1] >= brick.y0 && pos[1] <= brick.y1:
+			vel[0] = -vel[0];
+			return true;
+		default:
+			return brick.corners.some(cor => {
+				const disp = minus(pos, cor);
+				const dis2 = len2(disp);
+
+				if (dis2 <= ballRadius * ballRadius) {
+					const normal = norm(disp);
+					const proj = inner(vel, normal);
+					vel = minus(vel, scale(2 * proj, normal));
+					return true;
+				}
+				return false;
+			});
+	}
+}
+
 function draw(t0) {
 	return (t1) => {
 		requestAnimationFrame(draw(t1));
@@ -93,13 +123,19 @@ function draw(t0) {
 		pos = plus(pos, dp);
 		drawBall();
 
-		if (lPress && paddleX>=0)
+		if (lPress && paddleX > 0)
 			paddleX -= dt * paddleSpd;
-		else if (rPress && paddleX<=W-paddleW)
+		else if (rPress && paddleX <= W - paddleW)
 			paddleX += dt * paddleSpd;
 
 		drawPaddle();
-		levels[0].draw();
+		levels[0].bricks.forEach(brick => {
+			if (!brick.broken){
+				brick.draw(ctx);
+				if(brick.broken = checkCollision(brick))
+					score++;
+			}
+		});
 		drawScore();
 	}
 }
