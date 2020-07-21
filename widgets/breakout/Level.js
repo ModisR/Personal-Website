@@ -18,10 +18,12 @@ export class Level {
 
 	collides(ball, ctx) {
 		this.bricks.forEach(brick => {
+			let collided = false;
 			if(!brick.broken){
-				brick.broken = brick.collides(ball);
 				brick.draw(ctx);
+				collided = brick.broken = brick.collides(ball);
 			}
+			return collided;
 		});
 	}
 }
